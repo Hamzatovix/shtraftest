@@ -19,14 +19,21 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      setIsAuthenticated(true);
-      const decoded = decodeJwt(token);
-      setIsAdmin(decoded.role === 'admin');
+      try {
+        const decoded = decodeJwt(token);
+        setIsAuthenticated(true);
+        setIsAdmin(decoded.role === 'admin');
+      } catch (error) {
+        console.error('Ошибка декодирования токена:', error);
+        setIsAuthenticated(false);
+        setIsAdmin(false);
+        localStorage.removeItem('token'); // Удаляем недействительный токен
+      }
     } else {
       setIsAuthenticated(false);
       setIsAdmin(false);
     }
-  }, []);
+  }, []); // Можно добавить [localStorage.getItem('token')] как зависимость, если нужно отслеживать изменения
 
   const ProtectedRoute = ({ children }) => {
     return isAuthenticated ? children : <Navigate to="/login" replace />;

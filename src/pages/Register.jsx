@@ -13,39 +13,30 @@ function Register() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      // Сохраняем данные пользователя в localStorage
+      const user = {
+        username: formData.username,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password, // В реальном проекте пароль нужно хешировать
+        createdAt: new Date().toISOString(),
+      };
 
-      const result = await response.json();
-      if (response.ok) {
-        setSuccess(result.message);
-        // Перенаправление на личный кабинет после регистрации
-        const loginResponse = await fetch('http://localhost:5000/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: formData.username, password: formData.password }),
-        });
-        const loginResult = await loginResponse.json();
-        if (loginResponse.ok) {
-          localStorage.setItem('token', loginResult.token);
-          navigate('/profile');
-        } else {
-          setError('Ошибка входа после регистрации: ' + loginResult.message);
-        }
-      } else {
-        setError(result.message || 'Ошибка регистрации');
-      }
+      // Сохраняем пользователя (в реальном проекте это должен быть сервер)
+      localStorage.setItem('user_' + formData.email, JSON.stringify(user));
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userEmail', formData.email);
+
+      setSuccess('Регистрация прошла успешно!');
+      navigate('/home'); // Перенаправляем на /home
     } catch (err) {
-      setError('Ошибка при регистрации: ' + err.message);
+      setError('Ошибка при регистрации: ' + (err.message || 'Попробуйте снова'));
     }
   };
 
@@ -114,6 +105,7 @@ function Register() {
                 value={formData.email}
                 onChange={handleInputChange}
                 className="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm sm:text-base font-inter"
+                required
               />
             </div>
 

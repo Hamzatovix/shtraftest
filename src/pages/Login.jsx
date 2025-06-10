@@ -3,35 +3,37 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Тестовая "база данных" пользователей (в реальном проекте это должен быть сервер)
+  const users = [
+    { email: 'test@example.com', password: 'password123' },
+    { email: 'user@example.com', password: 'user123' },
+  ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
 
-    try {
-      const response = await fetch('http://localhost:5000/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+    // Проверяем, существует ли пользователь
+    const user = users.find(
+      (u) => u.email === formData.email && u.password === formData.password
+    );
 
-      const result = await response.json();
-      if (response.ok) {
-        localStorage.setItem('token', result.token);
-        navigate('/profile');
-      } else {
-        setError(result.message || 'Ошибка входа');
-      }
-    } catch (err) {
-      setError('Ошибка при входе: ' + err.message);
+    if (user) {
+      // Сохраняем информацию об авторизации в localStorage
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userEmail', user.email);
+      navigate('/home'); // Перенаправляем на /home
+    } else {
+      setError('Ошибка при входе: Неверный email или пароль');
     }
   };
 
@@ -69,11 +71,11 @@ function Login() {
         >
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
-              <label className="block text-gray-900 font-semibold mb-1 font-inter">Имя пользователя</label>
+              <label className="block text-gray-900 font-semibold mb-1 font-inter">Email</label>
               <input
-                type="text"
-                name="username"
-                value={formData.username}
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleInputChange}
                 className="w-full p-2 sm:p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-sm sm:text-base font-inter"
                 required
