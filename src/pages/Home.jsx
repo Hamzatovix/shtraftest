@@ -9,7 +9,8 @@ function Home({ isAuthenticated }) {
   const [savings, setSavings] = useState(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [complaintCount, setComplaintCount] = useState(0);
-  const [tooltip, setTooltip] = useState(null); // Вернули состояние tooltip
+  const [tooltip, setTooltip] = useState(null);
+  const [isAppealInfoOpen, setIsAppealInfoOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -114,6 +115,11 @@ function Home({ isAuthenticated }) {
 
   const heroTitle = 'Обжалуйте штрафы за парковку легко, быстро и с гарантией';
 
+  const appealInfoVariants = {
+    hidden: { opacity: 0, height: 0 },
+    visible: { opacity: 1, height: 'auto', transition: { duration: 0.3 } },
+  };
+
   return (
     <div className="bg-gray-50 relative overflow-hidden">
       <motion.div
@@ -170,16 +176,62 @@ function Home({ isAuthenticated }) {
             </motion.p>
             <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
               <motion.div variants={buttonVariants} initial="initial" whileHover="hover" className="relative inline-block">
-                <Link to="/submit-complaint" className="inline-flex items-center bg-amber-400 text-gray-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-amber-500 transition duration-300 font-inter" aria-label="Подать жалобу на штраф">
+                <Link to="/submit-complaint" className="inline-flex items-center bg-amber-400 text-gray-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-amber-500 transition duration-300 font-inter cursor-pointer" aria-label="Подать жалобу на штраф">
                   Подать жалобу
                 </Link>
               </motion.div>
               <motion.div variants={buttonVariants} initial="initial" whileHover="hover" className="relative inline-block">
-                <Link to="/check-fine" className="inline-flex items-center border border-indigo-600 text-indigo-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-indigo-50 transition duration-300 font-inter" aria-label="Проверить, можно ли обжаловать мой штраф">
+                <button
+                  onClick={() => setIsAppealInfoOpen(!isAppealInfoOpen)}
+                  className="inline-flex items-center border border-indigo-600 text-indigo-600 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-indigo-50 transition duration-300 font-inter cursor-pointer"
+                  aria-label="Проверить, можно ли обжаловать мой штраф"
+                  aria-expanded={isAppealInfoOpen}
+                >
                   Проверить, можно ли обжаловать мой штраф
-                </Link>
+                </button>
               </motion.div>
             </div>
+            {isAppealInfoOpen && (
+              <motion.div
+                className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8"
+                variants={appealInfoVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+              >
+                <div className="text-gray-700 space-y-4">
+                  <p>
+                    Если ваше нарушение зафиксировано:
+                    <ul className="list-disc list-inside mt-2">
+                      <li>а) стационарной камерой (размещенной на столбе);</li>
+                      <li>б) камерой, установленной на крыше автомобиля = обжаловать не получится.</li>
+                    </ul>
+                  </p>
+                  <p>
+                    Если штраф зафиксирован АПК Паркнет-М или ПАК Помощник Москвы мы гарантируем отмену этого штрафа.
+                  </p>
+                  <p>
+                    Для того, чтобы понять, чем именно зафиксировано нарушение обратите внимание на этот кусок текста в постановлении (выделено желтым):
+                  </p>
+                  <p>
+                    Дополнительно обратите внимание на фотографию вашей машины, по ее характеру будет очевидно, как именно фиксировалось правонарушение – стационарной камерой либо человеком.
+                  </p>
+                </div>
+                <div className="bg-yellow-100 p-4 rounded-lg">
+                  <p>
+                    Подсказка: если у вас нет бумажного экземпляра постановления сходите на почту по месту вашей регистрации и получите письмо. Если вы проживаете в другом регионе России попросите кого-то сходить вместо вас. А затем заполните форму и приложите скан полученного постановления. Без постановления обжаловать невозможно! 
+                  </p>
+                </div>
+                <motion.div
+                  className="col-span-1 lg:col-span-2 mt-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.3 }}
+                >
+                  <img src="/exmpl.jpg" alt="Пример постановления" className="w-full max-w-md mx-auto rounded-lg shadow-md" />
+                </motion.div>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </section>
@@ -191,7 +243,7 @@ function Home({ isAuthenticated }) {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {[
-              { title: '1. Заполните форму', description: 'Укажите данные штрафа и опишите ситуацию.', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V6h10v2z" /></svg>, tooltip: 'Форма занимает всего 2 минуты!' },
+              { title: '1. Заполните форму', description: 'Укажите данные штрафа и опишите ситуацию.', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h9v2zm0-4H7V6h9v2z" /></svg>, tooltip: 'Форма занимает всего 2 минуты!' },
               { title: '2. Прикрепите документы', description: 'Добавьте фото штрафа или другие файлы.', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm4.59-12.42L10 14.17l-2.59-2.58L6 13l4 4 8-8z" /></svg>, tooltip: 'Поддерживаем PDF и изображения.' },
               { title: '3. Получите результат', description: 'Наши юристы обработают жалобу и свяжутся с вами.', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg>, tooltip: 'Среднее время ответа — 24 часа.' },
             ].map((step, index) => (
@@ -249,10 +301,10 @@ function Home({ isAuthenticated }) {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             {[
-              { title: 'Быстро', description: 'Подготовка жалобы занимает всего несколько минут', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14h-2v6l5.25 3.15.75-1.23-4.5-2.67V6z" /></svg> },
-              { title: 'Удобно', description: 'После подготовки жалобы вы получите подробную инструкцию по её подаче в суд онлайн без очередей и бумажной волокиты', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 12H8v-2h4v2zm0-4H8v-2h4v2zm0-4H8V6h4v2zm6 8h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4V6h4v2z" /></svg> },
-              { title: 'С возмещением', description: 'Сумму за наши услуги мы сразу будем заявлять в качестве расходов при взыскании с ответчика', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M11 2H9v3h2V2zm4.242.758l-2.121 2.121 2.122 2.122 2.121-2.122-2.122-2.121zM19 9v2h3V9h-3zm-1.758 4.242l-2.121-2.122-2.122 2.122 2.122 2.121 2.121-2.121zM11 16H9v3h2v-3zm-4.242-1.758l-2.122-2.121-2.121 2.122 2.122 2.121 2.121-2.122zM2 11V9h3v2H2zm4.242-4.242l-2.121-2.122-2.122 2.122 2.122 2.121 2.121-2.121zM7 12c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5zm2 0c0 1.654 1.346 3 3 3s3-1.346 3-3-1.346-3-3-3-3 1.346-3 3z" /></svg> },
-              { title: 'С гарантией', description: 'Мы беремся только за те штрафы, которые можно отменить. Если штраф не отменят – мы вернём вам деньги', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg> },
+              { title: 'Быстро', description: 'Подготовка жалобы занимает всего несколько минут.', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14h-2v6l5.25 3.15.75-1.23-4.5-2.67V6z" /></svg> },
+              { title: 'Удобно', description: 'После подготовки жалобы вы получите подробную инструкцию по её подаче в суд онлайн без очередей и бумажной волокиты.', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 12H8v-2h4v2zm0-4H8v-2h4v2zm0-4H8V6h4v2zm6 8h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4V6h4v2z" /></svg> },
+              { title: 'С возмещением', description: 'Сумму за наши услуги мы сразу будем заявлять в качестве расходов при взыскании с ответчика.', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M11 2H9v3h2V2zm4.242.758l-2.121 2.121 2.122 2.122 2.121-2.122-2.122-2.121zM19 9v2h3V9h-3zm-1.758 4.242l-2.121-2.122-2.122 2.122 2.122 2.121 2.121-2.121zM11 16H9v3h2v-3zm-4.242-1.758l-2.122-2.121-2.121 2.122 2.122 2.121 2.121-2.122zM2 11V9h3v2H2zm4.242-4.242l-2.121-2.122-2.122 2.122 2.122 2.121 2.121-2.121zM7 12c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5zm2 0c0 1.654 1.346 3 3 3s3-1.346 3-3-1.346-3-3-3-3 1.346-3 3z" /></svg> },
+              { title: 'С гарантией', description: 'Мы беремся только за те штрафы, которые можно отменить. Если штраф не отменят – мы вернём вам деньги.', icon: <svg className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" /></svg> },
             ].map((benefit, index) => (
               <motion.div key={index} className="bg-gray-50 p-6 sm:p-8 rounded-lg shadow-sm hover:shadow-md transition duration-300 text-center" variants={cardVariants} whileHover="hover">
                 <motion.div className="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4" whileHover={{ scale: 1.1 }}>
@@ -309,7 +361,7 @@ function Home({ isAuthenticated }) {
                 </div>
                 <button
                   onClick={handleFineCalculation}
-                  className="w-full bg-amber-400 text-gray-900 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-amber-500 transition duration-300 text-sm sm:text-base font-inter"
+                  className="w-full bg-amber-400 text-gray-900 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-amber-500 transition duration-300 text-sm sm:text-base font-inter cursor-pointer"
                   aria-label="Рассчитать экономию"
                 >
                   Рассчитать
@@ -337,7 +389,7 @@ function Home({ isAuthenticated }) {
               window.scrollTo({ top: 0, behavior: 'smooth' });
               navigate('/submit-complaint');
             }}
-            className="fixed bottom-8 right-8 bg-amber-400 text-gray-900 p-3 rounded-full shadow-lg hover:bg-amber-500 transition duration-300 md:hidden"
+            className="fixed bottom-8 right-8 bg-amber-400 text-gray-900 p-3 rounded-full shadow-lg hover:bg-amber-500 transition duration-300 md:hidden cursor-pointer"
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
@@ -352,7 +404,7 @@ function Home({ isAuthenticated }) {
         {showBackToTop && (
           <motion.button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-8 right-8 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 hidden md:block"
+            className="fixed bottom-8 right-8 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 hidden md:block cursor-pointer"
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0 }}
