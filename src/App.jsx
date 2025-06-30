@@ -56,11 +56,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route
               path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
+              element={<Profile />} // Убрана ProtectedRoute для теста
             />
             <Route
               path="/my-complaints"

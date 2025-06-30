@@ -8,9 +8,9 @@ function Home({ isAuthenticated }) {
   const [fineType, setFineType] = useState('parking');
   const [savings, setSavings] = useState(null);
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const [complaintCount, setComplaintCount] = useState(0);
   const [tooltip, setTooltip] = useState(null);
   const [isAppealInfoOpen, setIsAppealInfoOpen] = useState(false);
+  const [isImageEnlarged, setIsImageEnlarged] = useState(false); // Состояние для увеличения изображения
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,29 +19,6 @@ function Home({ isAuthenticated }) {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const launchDate = new Date('2025-05-26');
-    const currentDate = new Date('2025-06-10');
-    const daysSinceLaunch = Math.floor((currentDate - launchDate) / (1000 * 60 * 60 * 24));
-    
-    let totalComplaints = 0;
-    for (let day = 0; day <= daysSinceLaunch; day++) {
-      totalComplaints += day % 2 === 0 ? 7 : 4;
-    }
-
-    let currentCount = 0;
-    const interval = setInterval(() => {
-      if (currentCount < totalComplaints) {
-        setComplaintCount(currentCount + 1);
-        currentCount++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 50);
-
-    return () => clearInterval(interval);
   }, []);
 
   const handleFineCalculation = () => {
@@ -108,16 +85,16 @@ function Home({ isAuthenticated }) {
     animate: { opacity: 1, y: 0, transition: { duration: 0.8 } },
   };
 
-  const achievementVariants = {
-    initial: { opacity: 0, y: 30 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-  };
-
   const heroTitle = 'Обжалуйте штрафы за парковку легко, быстро и с гарантией';
 
   const appealInfoVariants = {
     hidden: { opacity: 0, height: 0 },
     visible: { opacity: 1, height: 'auto', transition: { duration: 0.3 } },
+  };
+
+  const imageVariants = {
+    initial: { scale: 1 },
+    enlarged: { scale: 2, transition: { duration: 0.3 } },
   };
 
   return (
@@ -221,15 +198,39 @@ function Home({ isAuthenticated }) {
                   <p>
                     Подсказка: если у вас нет бумажного экземпляра постановления сходите на почту по месту вашей регистрации и получите письмо. Если вы проживаете в другом регионе России попросите кого-то сходить вместо вас. А затем заполните форму и приложите скан полученного постановления. Без постановления обжаловать невозможно! 
                   </p>
+                  <motion.div
+                    className="mt-4 relative"
+                    onClick={window.innerWidth >= 768 ? () => setIsImageEnlarged(!isImageEnlarged) : undefined}
+                    whileHover={window.innerWidth >= 768 ? { scale: 1.02, cursor: 'pointer' } : undefined}
+                    aria-label="Увеличить изображение примера постановления"
+                  >
+                    <motion.img
+                      src="/exmpl.jpg"
+                      alt="Пример постановления"
+                      className="w-full max-w-md mx-auto rounded-lg shadow-md"
+                      variants={imageVariants}
+                      animate={isImageEnlarged ? 'enlarged' : 'initial'}
+                      style={{
+                        position: isImageEnlarged ? 'fixed' : 'relative',
+                        top: isImageEnlarged ? '10%' : 'auto',
+                        left: isImageEnlarged ? '10%' : 'auto',
+                        zIndex: isImageEnlarged ? 1000 : 'auto',
+                        maxWidth: isImageEnlarged ? '80%' : '100%',
+                        maxHeight: isImageEnlarged ? '80vh' : 'auto',
+                      }}
+                    />
+                    {isImageEnlarged && (
+                      <motion.div
+                        className="fixed inset-0 bg-black bg-opacity-50"
+                        onClick={() => setIsImageEnlarged(false)}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{ zIndex: 999 }}
+                      />
+                    )}
+                  </motion.div>
                 </div>
-                <motion.div
-                  className="col-span-1 lg:col-span-2 mt-4"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1, duration: 0.3 }}
-                >
-                  <img src="/exmpl.jpg" alt="Пример постановления" className="w-full max-w-md mx-auto rounded-lg shadow-md" />
-                </motion.div>
               </motion.div>
             )}
           </motion.div>
@@ -278,19 +279,6 @@ function Home({ isAuthenticated }) {
               </motion.div>
             ))}
           </div>
-        </div>
-      </motion.section>
-
-      <motion.section className="py-12 sm:py-16 bg-gray-50" initial="initial" whileInView="animate" viewport={{ once: true }} variants={achievementVariants}>
-        <div className="w-full max-w-7xl mx-auto p-6 sm:p-8 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-6 sm:mb-8 font-manrope">
-            Наши достижения
-          </h2>
-          <motion.div className="bg-indigo-600 text-white p-6 sm:p-8 rounded-lg shadow-md" initial={{ scale: 0.9 }} animate={{ scale: 1 }} transition={{ duration: 0.5 }}>
-            <p className="text-lg sm:text-xl md:text-2xl font-semibold font-inter">
-              Мы помогли обжаловать <span className="text-amber-400">{complaintCount}</span> штрафов
-            </p>
-          </motion.div>
         </div>
       </motion.section>
 
